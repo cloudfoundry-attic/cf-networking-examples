@@ -1,4 +1,4 @@
-# Cats and Dogs
+# CF Networking Example Apps
 
 This repo holds example apps to demonstrate [container networking](https://github.com/cloudfoundry/cf-networking-release)
 with and without [service discovery](https://github.com/cloudfoundry/cf-app-sd-release) on Cloud Foundry.
