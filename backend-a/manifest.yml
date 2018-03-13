@@ -8,3 +8,5 @@ applications:
       GOPACKAGENAME: example-apps/cats-and-dogs-with-service-discovery/backend-a
       CATS_PORTS: 7007,7008,7009
       UDP_PORTS: 9001,9002,9003
+    routes:
+    - route: backend-a.apps.internal

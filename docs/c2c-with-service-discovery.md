@@ -60,17 +60,16 @@ via container-to-container networking. An internal hostname is configured via th
 the domain provided set to the reserved internal domain of `apps.internal`.
 
 #### Deploying (Diagram 1)
-Backend-A
+Backend-A (example with internal route defined in app manifest)
 ```
 cd $DIR/backend-a
 cf push backend-a --no-start --no-route
-cf map-route backend-a apps.internal --hostname backend-a
 cf set-env backend-a CATS_PORTS "7007,7008"
 cf set-env backend-a UDP_PORTS "9003,9004"
 cf start backend-a
 ```
 
-Backend-B
+Backend-B (example with internal route defined using CLI)
 ```
 cd $DIR/backend-b
 cf push backend-b --no-start --no-route
