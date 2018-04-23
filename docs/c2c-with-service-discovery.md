@@ -63,7 +63,7 @@ the domain provided set to the reserved internal domain of `apps.internal`.
 Backend-A (example with internal route defined in app manifest)
 ```
 cd $DIR/backend-a
-cf push backend-a --no-start --no-route
+cf push backend-a --no-start
 cf set-env backend-a CATS_PORTS "7007,7008"
 cf set-env backend-a UDP_PORTS "9003,9004"
 cf start backend-a
