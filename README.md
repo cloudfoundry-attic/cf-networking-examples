@@ -1,7 +1,7 @@
 # CF Networking Example Apps
 
 This repo holds example apps to demonstrate [container networking](https://github.com/cloudfoundry/cf-networking-release)
-with and without [service discovery](https://github.com/cloudfoundry/cf-app-sd-release) on Cloud Foundry.
+with and without [service discovery](https://github.com/cloudfoundry/cf-networking-release/blob/develop/docs/app-sd.md) on Cloud Foundry.
 
 To try out container networking without service discovery, [follow these
 instructions](docs/c2c-no-service-discovery.md).
