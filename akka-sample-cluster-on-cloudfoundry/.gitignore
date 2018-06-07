@@ -1,0 +1,27 @@
+*.class
+*.log
+
+# sbt specific
+.cache
+.history
+.lib/
+.idea/
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Scala-IDE specific
+.scala_dependencies
+.worksheet
+*.sc
+*.tgz
+*.zip
+bosh-lite
+diego-release
+garden-runc-release
+cf-release
+netman-release
+bin
