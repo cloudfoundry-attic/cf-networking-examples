@@ -4,21 +4,21 @@ This repo contains sample Akka Cluster app integrated with Service Discovery.
 
 Thanks to [this git repo](https://github.com/gtantachuco-pivotal/akka-sample-cluster-on-cloudfoundry) for the original version of this example, which uses Amalgam8.
 
-This is a short guide to walk you through how to deploy and run Akka Cluster-based application on [Cloud Foundry (CF)](https://cloudfoundry.org)
+This is a short guide to walk you through how to deploy and run an Akka Cluster-based application on [Cloud Foundry (CF)](https://cloudfoundry.org).
 
 **Note:** Akka with no Remoting / Cluster can run on CF with no additional requirement. This article deals with cases when Remoting / Cluster features are used.
 
 **Background:** [Akka Cluster](http://doc.akka.io/docs/akka/snapshot/scala/cluster-usage.html) is based on TCP communication or optionally can use UDP instead in Akka version >= 2.4.11.
-CF's standard container-to-container (C2C) mechanism allows apps talking to other apps via TCP or UDP; however, the ingress traffic to the entry point application supports only HTTP(S) and TCP.
+CF's standard container-to-container (C2C) mechanism allows apps to talk to other apps via TCP or UDP; however, the ingress traffic to the entry point application supports only HTTP(S) and TCP.
 
-In this guide we will use this CF C2C feature to show how to run Akka Cluster that uses TCP.
+In this guide we will use this CF C2C feature to show how to run an Akka Cluster that uses TCP.
 
 ## Prerequisites
 
 The following instructions for this example assume the following:
-- [This git repo](https://github.com/cloudfoundry/cf-networking-examples) cloned to ~/workspace
-- [The CF Networking Release git repo](https://github.com/cloudfoundry/cf-networking-release) cloned to ~/workspace
-- A Cloud Foundry with Service Discovery enabled; service discovery is part of the cf-networking-release
+- [This git repo](https://github.com/cloudfoundry/cf-networking-examples) is cloned to ~/workspace
+- [The CF Networking Release git repo](https://github.com/cloudfoundry/cf-networking-release) is cloned to ~/workspace
+- A Cloud Foundry with service discovery enabled; service discovery is part of the cf-networking-release
 
 ## Get ready to deploy apps to CF
 
@@ -33,8 +33,8 @@ cf target -o...
 
 ## Build the Akka application
 
-You can deploy Akka application by using your foundation's [java-buildpack](https://github.com/cloudfoundry/java-buildpack.git). Our sample application is inspired by [akka-sample-cluster](https://github.com/akka/akka/tree/master/akka-samples/akka-sample-cluster-scala)).
-It has backend nodes that calculate factorial upon receiving messages from frontend nodes. Frontend nodes also expose HTTP interface `GET <frontend-hostname>/info` that shows number of jobs completed.
+You can deploy the Akka application by using your foundation's [java-buildpack](https://github.com/cloudfoundry/java-buildpack.git). Our sample application is inspired by the [akka-sample-cluster](https://github.com/akka/akka/tree/master/akka-samples/akka-sample-cluster-scala)).
+It has backend nodes that calculate factorials upon receiving messages from frontend nodes. Frontend nodes also expose `GET <frontend-hostname>/info` that shows the number of jobs completed.
 
 - Go to your local repo's folder
 ```
@@ -48,11 +48,13 @@ sbt frontend:assembly # frontend
 
 ## Deploying Akka backend application
 
-- Deploy, but do not start yet, sample Akka backend: with `--no-route` and `--health-check-type none` options since backend doesn't expose any HTTP ports:
+ **Note these commands assume your internal domain is `apps.internal`**
+
+- Deploy, but do not start, the sample Akka backend app: with `-d apps.internal` and `--health-check-type none` options, since the backend app doesn't expose any HTTP ports:
 ```
-cf push --no-start --no-route --health-check-type none akka-backend -p target/scala-2.11/akka-sample-backend.jar -b java_buildpack_offline
+cf push --no-start --health-check-type none akka-backend -p target/scala-2.11/akka-sample-backend.jar -b java_buildpack_offline -d apps.internal
 ```
-- Map an internal route to the backend application. Assuming your internal tld is `apps.internal`:
+- Map an internal route to the backend application:
 ```
 cf map-route akka-backend apps.internal --hostname akka-backend
 ```
@@ -80,7 +82,7 @@ cf scale akka-backend -i 2
 ```
 cf push akka-frontend --no-start -p target/scala-2.11/akka-sample-frontend.jar -b  java_buildpack_offline
 ```
-- Add this network policy to allow frontend app to communicate with backend app cannot via backend's TCP:2551 port:
+- Add this network policy to allow the frontend app to communicate with the backend app via TCP on port 2551:
 ```
 cf add-network-policy akka-frontend --destination-app akka-backend --port 2551 --protocol tcp
 ```
