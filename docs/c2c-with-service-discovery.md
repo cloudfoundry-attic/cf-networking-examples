@@ -72,8 +72,7 @@ cf start backend-a
 Backend-B (example with internal route defined using CLI)
 ```
 cd $DIR/backend-b
-cf push backend-b --no-start --no-route
-cf map-route backend-b apps.internal --hostname backend-b
+cf push backend-b --no-start -d apps.internal
 cf set-env backend-b CATS_PORTS "7007,7008"
 cf set-env backend-b UDP_PORTS "9003,9004"
 cf start backend-b
