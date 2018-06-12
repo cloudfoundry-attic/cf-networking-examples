@@ -22,7 +22,7 @@ In either case, the response from the backend to the frontend will be rendered a
 
 ### Deploying
 ```
-cd cats-and-dogs-example-app/frontend
+cd frontend
 cf api api.bosh-lite.com --skip-ssl-validation
 cf auth admin admin
 cf push frontend
@@ -40,7 +40,7 @@ and responds to simple text messages on the UDP ports specified in the environme
 
 ### Deploying
 ```
-cd cats-and-dogs-example-app/backend
+cd backend
 cf push backend --no-start
 cf set-env backend CATS_PORTS "7007,7008"
 cf set-env backend UDP_PORTS "9003,9004"
