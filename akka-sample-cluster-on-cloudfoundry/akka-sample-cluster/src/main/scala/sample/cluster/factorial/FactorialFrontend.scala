@@ -17,7 +17,6 @@ import scala.concurrent.duration._
 case object GetInfo
 case class Info(completed: Long, n: Int, factorial: BigInt)
 
-//#frontend
 class FactorialFrontend(upToN: Int, repeat: Boolean) extends Actor with ActorLogging {
 
   val backend = context.actorOf(FromConfig.props(),
@@ -56,7 +55,6 @@ class FactorialFrontend(upToN: Int, repeat: Boolean) extends Actor with ActorLog
     1 to upToN foreach { backend ! _ }
   }
 }
-//#frontend
 
 object FactorialFrontend extends SprayJsonSupport with DefaultJsonProtocol {
 
@@ -107,7 +105,6 @@ object FactorialFrontend extends SprayJsonSupport with DefaultJsonProtocol {
     val minMembers = appConfig.getNumber("akka.cluster.min-nr-of-members")
 
     val config = ConfigFactory.parseString("akka.cluster.roles = [frontend]").
-      withFallback(ConfigFactory.parseString(s"akka.remote.netty.tcp.bind-hostname=0.0.0.0")).
       withFallback(NetworkConfig.seedsConfig(clusterName, internalSeedHostname, internalSeedPort)).
       withFallback(appConfig)
 
@@ -116,24 +113,12 @@ object FactorialFrontend extends SprayJsonSupport with DefaultJsonProtocol {
     implicit val timeout = Timeout(5.seconds)
     implicit val executor = system.dispatcher
     system.log.info(s"Factorials will start when $minMembers backend members in the cluster.")
-    //#registerOnUp
+
     Cluster(system) registerOnMemberUp {
       val frontend = system.actorOf(Props(classOf[FactorialFrontend], upToN, repeat), name = "factorialFrontend")
       Http().bindAndHandle(routes(system, frontend, timeout), serverHost, serverPort)
     }
-    //#registerOnUp
 
-    //#registerOnRemoved
-    Cluster(system).registerOnMemberRemoved {
-      // exit JVM when ActorSystem has been terminated
-      system.registerOnTermination(System.exit(-1))
-      // in case ActorSystem shutdown takes longer than 10 seconds,
-      // exit the JVM forcefully anyway
-      system.scheduler.scheduleOnce(10.seconds)(System.exit(-1))(system.dispatcher)
-      // shut down ActorSystem
-      system.terminate()
-    }
-    //#registerOnRemoved
 
   }
 }

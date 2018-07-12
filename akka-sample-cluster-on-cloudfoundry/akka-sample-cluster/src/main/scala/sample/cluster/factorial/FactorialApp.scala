@@ -5,7 +5,7 @@ object FactorialApp {
     // starting 3 backend nodes and 1 frontend node
     FactorialBackend.main(Seq("2551").toArray)
     FactorialBackend.main(Seq("2552").toArray)
-    FactorialBackend.main(Array.empty)
+    FactorialBackend.main(Seq("2553").toArray)
     FactorialFrontend.main(Array.empty)
   }
 }
