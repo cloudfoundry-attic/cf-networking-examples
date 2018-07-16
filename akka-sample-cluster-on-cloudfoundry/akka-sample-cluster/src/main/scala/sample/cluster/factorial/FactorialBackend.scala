@@ -7,16 +7,14 @@ import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.ActorSystem
 import akka.actor.Props
-import akka.http.scaladsl.Http
 import akka.pattern.pipe
 
-//#backend
 class FactorialBackend extends Actor with ActorLogging {
 
   import context.dispatcher
 
   def receive = {
-    case (n: Int) =>
+    case n: Int =>
       Future(factorial(n)) map { result => (n, result) } pipeTo sender()
   }
 
@@ -29,7 +27,6 @@ class FactorialBackend extends Actor with ActorLogging {
   }
 
 }
-//#backend
 
 object FactorialBackend {
 
@@ -50,12 +47,22 @@ object FactorialBackend {
     val internalSeedPort = appConfig.getString("clustering.seed-port")
 
 
-    val config = ConfigFactory.parseString("akka.cluster.roles = [backend]").
-      withFallback(ConfigFactory.parseString(s"akka.remote.netty.tcp.hostname=$internalIp")).
-      withFallback(ConfigFactory.parseString(s"akka.remote.netty.tcp.port=$port")).
-      withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.bind-hostname=0.0.0.0")).
-      withFallback(NetworkConfig.seedsConfig(clusterName, internalSeedHostname, internalSeedPort)).
-      withFallback(appConfig)
+    val config = ConfigFactory.parseString(s"""
+      akka.cluster.roles = [backend]
+      akka.remote {
+        netty.tcp {
+          hostname=$internalIp
+          port=$port
+        }
+      }
+
+      akka.remote.artery {
+        canonical.hostname=$internalIp
+        canonical.port=$port
+      }
+      """)
+      .withFallback(NetworkConfig.seedsConfig(clusterName, internalSeedHostname, internalSeedPort))
+      .withFallback(appConfig)
 
     val system = ActorSystem(clusterName, config)
     system.actorOf(Props[FactorialBackend], name = "factorialBackend")

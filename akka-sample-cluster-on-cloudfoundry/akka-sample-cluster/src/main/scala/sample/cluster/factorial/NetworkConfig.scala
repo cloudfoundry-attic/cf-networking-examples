@@ -1,20 +1,21 @@
 package sample.cluster.factorial
 
-import java.net.{InetAddress, NetworkInterface, URLEncoder}
+import java.net.InetAddress
 
-import scala.collection.JavaConversions._
-import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
-import play.api.libs.json.Json
+import scala.collection.JavaConverters._
 
-import scala.concurrent.{ExecutionContext, Future}
-import scalaj.http.{Http, HttpOptions, HttpResponse}
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigValueFactory
 
-/**
-  * Created by Admin on 2016-08-31.
-  */
 object NetworkConfig {
 
-  def hostLocalAddress: String = System.getenv("CF_INSTANCE_INTERNAL_IP")
+  def hostLocalAddress: String = {
+    System.getenv("CF_INSTANCE_INTERNAL_IP") match {
+      case null => "127.0.0.1" // for local testing
+      case ip => ip
+    }
+  }
 
   def seedsConfig(
                    clusterName: String,
@@ -22,7 +23,9 @@ object NetworkConfig {
                    internalSeedPort: String): Config = {
     ConfigFactory.empty().withValue("akka.cluster.seed-nodes",
       ConfigValueFactory.fromIterable(
-        InetAddress.getAllByName(internalSeedHostname).map(_.getHostAddress).toSeq.
-          map{ case(ip) => s"akka.tcp://$clusterName@$ip:$internalSeedPort"}))
+        InetAddress.getAllByName(internalSeedHostname).toVector.map { address =>
+            s"akka.tcp://$clusterName@${address.getHostAddress}:$internalSeedPort"
+          }.asJava))
+    // change 'akka.tcp' to 'akka' if artery is enabled
   }
 }

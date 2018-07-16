@@ -1,6 +1,5 @@
-val akkaV = "2.4.3"
-
-resolvers ++= Seq("Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/")
+val akkaVersion = "2.5.13"
+val akkaHttpVersion = "10.1.3"
 
 val Frontend = config("frontend") extend(Compile)
 val Backend = config("backend") extend(Compile)
@@ -12,31 +11,26 @@ def customAssemblySettings =
       inTask(assembly)(mainClass := Some("sample.cluster.factorial.FactorialBackend")) ++
       inTask(assembly)(assemblyJarName := "akka-sample-backend.jar"))
 
-val project = Project(
-  id = "akka-sample-cluster-scala",
-  base = file("."),
-  settings = customAssemblySettings ++ Defaults.coreDefaultSettings ++ Seq(
-    name := """akka-sample-cluster""",
-    scalaVersion := "2.11.8",
-    // scalaVersion := provided by Typesafe Reactive Platform
-    scalacOptions in Compile ++= Seq("-encoding", "UTF-8", "-target:jvm-1.6", "-deprecation", "-feature", "-unchecked", "-Xlog-reflective-calls", "-Xlint"),
-    javacOptions in Compile ++= Seq("-source", "1.6", "-target", "1.6", "-Xlint:unchecked", "-Xlint:deprecation"),
+
+lazy val `akka-sample-cluster-scala` = project
+  .in(file("."))
+  .settings(
+    customAssemblySettings,
+    name := "akka-sample-cluster",
+    scalaVersion := "2.12.6",
+    scalacOptions in Compile ++= Seq("-deprecation", "-feature", "-unchecked", "-Xlog-reflective-calls", "-Xlint"),
+    javacOptions in Compile ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
+    javaOptions in run ++= Seq("-Xms128m", "-Xmx1024m"),
     libraryDependencies ++= Seq(
-      "com.typesafe.akka" %% "akka-cluster" % akkaV,
-      "com.typesafe.akka" %% "akka-multi-node-testkit" % akkaV,
-      "com.typesafe.akka" %% "akka-http-experimental" % akkaV,
-      "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaV,
-      "com.typesafe.akka" %% "akka-contrib" % akkaV,
-      "org.scalaj" %% "scalaj-http" % "2.3.0",
-      "com.typesafe.play" %% "play-json" % "2.3.4",
-      "org.scalatest" %% "scalatest" % "2.2.1" % "test"//,
-      /*"org.fusesource" % "sigar" % "1.6.4"*/),
-    javaOptions in run ++= Seq(
-      //"-Djava.library.path=./sigar",
-      "-Xms128m", "-Xmx1024m"),
-    Keys.fork in run := true,  
-    mainClass in (Compile, run) := Some("sample.cluster.simple.SimpleClusterApp"),
+      "com.typesafe.akka" %% "akka-actor" % akkaVersion,
+      "com.typesafe.akka" %% "akka-remote" % akkaVersion,
+      "com.typesafe.akka" %% "akka-cluster" % akkaVersion,
+      "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+      "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
+      "org.scalatest" %% "scalatest" % "3.0.1" % Test),
+    fork in run := true,
+    mainClass in (Compile, run) := Some("sample.cluster.factorial.FactorialApp"),
     parallelExecution in Test := false,
-    mainClass in assembly := Some("sample.cluster.factorial.FactorialApp")
+    mainClass in assembly := Some("sample.cluster.factorial.FactorialApp"),
+    licenses := Seq(("CC0", url("http://creativecommons.org/publicdomain/zero/1.0")))
   )
-)
